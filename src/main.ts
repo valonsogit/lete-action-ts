@@ -26,6 +26,7 @@ async function run(): Promise<void> {
                 return;
             }
         }
+        /** Create Octokit instance for API calls */
         const octoInstance = github.getOctokit(expectedSecretValue);
 
         /** Create branch */

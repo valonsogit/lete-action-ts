@@ -61,6 +61,7 @@ function run() {
                     return;
                 }
             }
+            /** Create Octokit instance for API calls */
             const octoInstance = github.getOctokit(expectedSecretValue);
             /** Create branch */
             const branchName = `test-branch-${Date.now()}`;
