@@ -2,7 +2,7 @@ name: 'Auto Issue Post Action'
 description: 'Action test'
 author: 'valonso'
 inputs:
-  secrets: 
+  sex: 
     required: true
     description: 'all secrets...?'
     # default: 'Default value'
