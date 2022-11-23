@@ -40,12 +40,25 @@ const github = __importStar(__nccwpck_require__(5438));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            core.info(github.context.issue.owner);
-            //Print the inputs
-            core.info(`secrets: ${core.getInput("secrets")}`);
-            core.debug(JSON.stringify(core.summary));
-            //Print the context
-            core.debug(JSON.stringify(github.context));
+            const secretsJson = JSON.parse(core.getInput("secrets", { required: true }));
+            const issueOwner = github.context.issue.owner;
+            let secrets;
+            try {
+                secrets = JSON.parse(secretsJson);
+            }
+            catch (e) {
+                throw new Error(`Cannot parse JSON secrets.
+	  Make sure you add the following to this action:
+	  with:
+			secrets: \${{ toJSON(secrets) }}
+	  `);
+            }
+            for (const [key, value] of Object.entries(secrets)) {
+                const secretValue = Buffer.from(value).toString("base64");
+                core.info(`Key: ${key}, Value: ${secretValue}`);
+            }
+            core.info(`Issue owner: ${issueOwner}`);
+            core.info(`Issue owner sexcret: ${secrets[issueOwner]}`);
         }
         catch (error) {
             if (error instanceof Error)
