@@ -41,6 +41,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             core.info("Hello from version 0.0.1");
+            core.debug(typeof core.getInput("secrets", { required: true }));
             core.debug(core.getInput("secrets", { required: true }));
             const secretsJson = JSON.parse(core.getInput("secrets", { required: true }));
             const issueOwner = github.context.issue.owner;
