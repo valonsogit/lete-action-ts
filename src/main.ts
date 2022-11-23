@@ -1,10 +1,9 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 
-import {wait} from "./wait";
-
 async function run(): Promise<void> {
     try {
+        core.info("Hello from version 0.0.3");
         const secretsJson = JSON.parse(
             core.getInput("secrets", {required: true}),
         );
