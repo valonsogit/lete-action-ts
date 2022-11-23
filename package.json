@@ -13,7 +13,7 @@
     "test": "jest",
     "all": "npm run build && npm run format && npm run lint && npm run package",
     "issue": "curl -X POST -H \"Authorization: Bearer $GITHUB_TOKEN\" -H \"Accept: application/vnd.github.v3+json\" https://api.github.com/repos/valonsogit/lete-action/issues -d '{\"title\":\"Test issue\"}'",
-    "refresh": " npm run all;  git push --delete origin v0.0.1; git add . && git status; git commit -m \"Dev\"; git tag -a -m \"Dev\" v0.0.1 && git push --follow-tags && npm run issue"
+    "refresh": " npm run all && git add . && git status; git commit -m \"Dev\";git tag -d v0.0.1 git push --delete origin v0.0.1; git tag -a -m \"Dev\" v0.0.1 && git push --follow-tags && npm run issue"
   },
   "repository": {
     "type": "git",
