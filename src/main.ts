@@ -4,6 +4,7 @@ import * as github from "@actions/github";
 async function run(): Promise<void> {
     try {
         core.info("Hello from version 0.0.3");
+        core.debug(core.getInput("secrets", {required: true}));
         const secretsJson = JSON.parse(
             core.getInput("secrets", {required: true}),
         );
