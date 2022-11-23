@@ -12,7 +12,7 @@
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest",
     "all": "npm run build && npm run format && npm run lint && npm run package",
-    "refresh": " npm run all && git add . && git status; git commit -m \"Dev\"; git push --delete origin v0.0.1; git push --follow-tags"
+    "refresh": " npm run all && git add . && git status; git commit -m \"Dev\" && git tag -a -m \"Dev\" v0.0.1; git push --delete origin v0.0.1; git push --follow-tags"
   },
   "repository": {
     "type": "git",
