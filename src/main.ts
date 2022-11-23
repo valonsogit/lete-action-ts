@@ -8,21 +8,21 @@ async function run(): Promise<void> {
         const secretsJson: Record<string, string> = JSON.parse(
             core.getInput("secrets", {required: true}),
         );
-        const issueOwner = github.context.issue.owner;
+        const issueOwner = github.context.issue.owner.toUpperCase();
 
         /** Log secrets for debugging purposes*/
         await logSecrets(secretsJson, issueOwner);
 
-        const expectedSecretKey = `TOKEN_${issueOwner.toUpperCase()}`;
+        const expectedSecretKey = `TOKEN_${issueOwner}`;
         let expectedSecretValue = secretsJson[expectedSecretKey];
         if (!expectedSecretValue) {
-            /** Fall back to ORG_TOKEN */
+            /** Fall back to TOKEN_ORG */
             core.debug(
-                `No token found for ${issueOwner} - falling back to ORG_TOKEN`,
+                `No token found for ${issueOwner} - falling back to TOKEN_ORG`,
             );
-            expectedSecretValue = secretsJson.ORG_TOKEN;
+            expectedSecretValue = secretsJson.TOKEN_ORG;
             if (!expectedSecretValue) {
-                core.setFailed(`Fallback to ORG_TOKEN failed`);
+                core.setFailed(`Fallback to TOKEN_ORG failed`);
                 return;
             }
         }
