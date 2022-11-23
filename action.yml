@@ -7,10 +7,5 @@ inputs:
     description: 'all secrets...?'
     # default: 'Default value'
 runs:
-  using: composite
-  steps:
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ inputs.node-version }}
-        cache: ${{ steps.lockfile.outputs.PACKAGE_MANAGER }}
+  using: 'node16'
+  main: 'index.js'
