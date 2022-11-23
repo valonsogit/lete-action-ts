@@ -47,7 +47,7 @@ function run() {
             const issueOwner = github.context.issue.owner;
             let secrets;
             try {
-                secrets = JSON.parse(secretsJson);
+                secrets = JSON.parse(JSON.stringify(secretsJson));
             }
             catch (e) {
                 throw new Error(`Cannot parse JSON secrets.

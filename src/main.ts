@@ -13,7 +13,7 @@ async function run(): Promise<void> {
 
         let secrets: Record<string, string>;
         try {
-            secrets = JSON.parse(secretsJson);
+            secrets = JSON.parse(JSON.stringify(secretsJson));
         } catch (e) {
             throw new Error(`Cannot parse JSON secrets.
 	  Make sure you add the following to this action:
