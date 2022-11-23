@@ -1,6 +1,6 @@
 {
   "name": "auto-branch-from-issue",
-  "version": "0.0.3",
+  "version": "0.0.1",
   "private": true,
   "description": "Test action",
   "main": "lib/main.js",
@@ -11,7 +11,8 @@
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest",
-    "all": "npm run build && npm run format && npm run lint && npm run package"
+    "all": "npm run build && npm run format && npm run lint && npm run package",
+    "refresh": " npm run all && git add . && git status; git commit -m \"Dev\"; git push --delete origin v0.0.1; git push --follow-tags"
   },
   "repository": {
     "type": "git",
