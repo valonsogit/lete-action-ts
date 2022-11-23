@@ -1,11 +1,11 @@
-name: 'Auto Issue Post Action'
-description: 'Action test'
-author: 'valonso'
+name: "Auto Issue Post Action"
+description: "Action test"
+author: "valonso"
 inputs:
-  sex: 
-    required: true
-    description: 'all secrets...?'
-    # default: 'Default value'
+    secrets:
+        required: true
+        description: "JSON secrets"
+        # default: 'Default value'
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+    using: "node16"
+    main: "dist/index.js"
