@@ -7,7 +7,6 @@ inputs:
     secrets:
         required: true
         description: "JSON secrets"
-        default: "${{ toJSON(secrets) }}"
     secretKey:
         required: true
         description:
