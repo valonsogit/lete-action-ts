@@ -56,9 +56,16 @@ async function run(): Promise<void> {
                 );
                 expectedSecretValue = secretsObject[fallbackKey];
                 if (!expectedSecretValue) {
-                    throw Error(`Fallback to ${fallbackKey} failed`);
+                    core.debug(
+                        `No value found for ${fallbackKey} - falling back to github_token`,
+                    );
+                    expectedSecretValue = secretsObject.github_token;
+                    core.debug(`Fallback to github_token`);
                 }
             }
+        }
+        if (!expectedSecretValue) {
+            throw Error(`How tf did github_token disappear?`);
         }
         core.debug(`Secret value found`);
         core.exportVariable(outputName, expectedSecretValue);
