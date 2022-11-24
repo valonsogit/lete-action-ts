@@ -1,11 +1,27 @@
-name: "Auto Issue Post Action"
-description: "Action test"
+name: "secrets-token-selector"
+description:
+    "A github action to select a specific token from all the secrets in the
+    repository"
 author: "valonso"
 inputs:
     secrets:
         required: true
         description: "JSON secrets"
-        # default: 'Default value'
+        default: "${{ toJSON(secrets) }}"
+    secretKey:
+        required: true
+        description:
+            "Secret key to select from the JSON secrets. If the key is not found
+            and no fallback is provided, the action will fail"
+    fallbackKey:
+        required: false
+        description:
+            "Secret key to use if no secret value is found with the key provided"
+    outputName:
+        required: true
+        description:
+            "Name of the output enviroment variable to set with the selected secret value"
+        default: "GITHUB_TOKEN"
 runs:
     using: "node16"
     main: "dist/index.js"
