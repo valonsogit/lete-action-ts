@@ -79,6 +79,7 @@ function run() {
                     throw Error(`Fallback to ${fallbackKey} failed`);
                 }
             }
+            core.debug(`Secret value found`);
             core.exportVariable(outputName, expectedSecretValue);
             core.debug(`Defined ${outputName} as environment variable`);
             core.setOutput(outputName, expectedSecretValue);
