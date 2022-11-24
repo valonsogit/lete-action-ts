@@ -17,14 +17,14 @@ async function run(): Promise<void> {
         const secretKey = core
             .getInput("secretKey", {required: true})
             .toUpperCase()
-            .replace(/[^a-zA-Z0-9]/g, "");
+            .replace(/[^a-zA-Z0-9_]/g, "");
 
         core.debug(`Secret key found: ${secretKey}`);
 
         const fallbackKey = core
             .getInput("fallbackKey", {required: false})
             .toUpperCase()
-            .replace(/[^a-zA-Z0-9]/g, "");
+            .replace(/[^a-zA-Z0-9_]/g, "");
 
         if (fallbackKey) {
             core.debug(`fallbackKey found: ${fallbackKey}`);
@@ -37,7 +37,7 @@ async function run(): Promise<void> {
                 required: true,
             })
             .toUpperCase()
-            .replace(/[^a-zA-Z0-9]/g, "");
+            .replace(/[^a-zA-Z0-9_]/g, "");
         core.debug(`outputName found: ${outputName}`);
 
         let expectedSecretValue = secretsObject[secretKey];

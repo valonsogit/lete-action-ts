@@ -7,7 +7,7 @@ This action selects a token from all the tokens in your repository given an inpu
 ### Inputs
 
 - `secrets` - REQUIRED: all the secrets in the repository. This input *MUST* be `${{ toJSON(secrets) }}` otherwise the action will fail.
-> **Note**: The following inputs will be uppercased and cleaned of all non-alpha-numeric characters. This is to ensure that they are valid environment variable names.
+> **Note**: The following inputs will be uppercased and cleaned of all non-alpha-numeric characters excluding _. This is to ensure that they are valid environment variable names.
 - `secretKey` - REQUIRED: the key of the secret we want to obtain. Useful in combination with expressions like
 `${{ github.actor }}` to get a secret based on the current flow.
 - `fallbackKey` - OPTIONAL: the key of the secret we want to obtain if the `secretKey` is not found. Useful when an actor secret is not found and we want to fallback to a default secret such as an organization secret.
