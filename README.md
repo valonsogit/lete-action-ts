@@ -1,6 +1,6 @@
 # Secret Selection Action
 
-This action for selects a token from all the tokens in your repository given an input key.
+This action selects a token from all the tokens in your repository given an input key.
 
 ## Usage
 
