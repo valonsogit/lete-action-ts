@@ -1,5 +1,7 @@
 name: "secrets-token-selector"
-icon: "dollar-sign"
+branding:
+    color: "gray-dark"
+    icon: "search"
 description:
     "A github action to select a specific token from all the secrets in the
     repository"
