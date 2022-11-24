@@ -13,7 +13,7 @@ This action selects a token from all the tokens in your repository given an inpu
 - `fallbackKey` - OPTIONAL: the key of the secret we want to obtain if the `secretKey` is not found. Useful when an actor secret is not found and we want to fallback to a default secret such as an organization secret.
 - `outputName` - REQUIRED: the key for the output variable. Defaults to `SELECTED_SECRET` and will be defined in both the enviroment and as a step output.<br/>
   It can be used in subsequent steps with the following syntax:
-    - As an enviroment variable - `$<outputName>`
+    - As an enviroment variable - `${{ env.<outputName> }}`
     - As a step output - `${{ steps.<step-id>.outputs.<outputName> }}`.
 
 ### Example workflow:
@@ -42,7 +42,7 @@ jobs:
           secretKey: TOKEN_${{ github.actor }} # The key will have a TOKEN_ prefix
           outputName: CUSTOM_OUTPUT_NAME
       - name: "Print ouput of previous step with env"
-        run: echo "$CUSTOM_OUTPUT_NAME"
+        run: echo "${{ env.CUSTOM_OUTPUT_NAME }}"
       - name: "Print output of previous step with its output"
         run: echo "${{ steps.selection.outputs.CUSTOM_OUTPUT_NAME }}"
       - name: "Print full env"
