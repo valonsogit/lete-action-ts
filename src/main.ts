@@ -1,4 +1,5 @@
 import * as core from "@actions/core";
+import * as github from "@actions/github";
 async function run(): Promise<void> {
     try {
         /** Define necessary variables */
@@ -43,17 +44,20 @@ async function run(): Promise<void> {
         let expectedSecretValue = secretsObject[secretKey];
         if (!expectedSecretValue) {
             if (!fallbackKey) {
-                throw Error(
+                core.debug(
                     `${secretKey} not found and no fallbackKey was provided`,
                 );
-            }
-            /** Fallback */
-            core.debug(
-                `No value found for ${secretKey} - falling back to ${fallbackKey}`,
-            );
-            expectedSecretValue = secretsObject[fallbackKey];
-            if (!expectedSecretValue) {
-                throw Error(`Fallback to ${fallbackKey} failed`);
+                expectedSecretValue = secretsObject.github_token;
+                core.debug(`Fallback to github_token`);
+            } else {
+                /** Fallback */
+                core.debug(
+                    `No value found for ${secretKey} - falling back to ${fallbackKey}`,
+                );
+                expectedSecretValue = secretsObject[fallbackKey];
+                if (!expectedSecretValue) {
+                    throw Error(`Fallback to ${fallbackKey} failed`);
+                }
             }
         }
         core.debug(`Secret value found`);

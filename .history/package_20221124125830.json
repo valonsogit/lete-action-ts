@@ -10,7 +10,7 @@
     "format-check": "prettier --check '**/*.ts'",
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt",
-    "all": "npm run build && npm run format && npm run package",
+    "all": "npm run build && npm run format && npm run lint && npm run package",
     "issue": "curl -X POST -H \"Authorization: Bearer $GITHUB_TOKEN\" -H \"Accept: application/vnd.github.v3+json\" https://api.github.com/repos/valonsogit/lete-action/issues -d \"{\\\"title\\\": \\\"Test at $(date +\"%H:%M:%S\")\\\" }\"",
     "dev": "npm run all && ( git add . && git status; git commit -m \"Dev\";git tag -d dev; git push --delete origin dev; git tag -a -m \"Dev\" dev && git push --follow-tags && npm run issue )",
     "release": "ACTION_VERSION=$npm_package_version && npm run all && ( git add . && git status; git commit -m \"Release $ACTION_VERSION\";git tag -d v$ACTION_VERSION; git push --delete origin v$ACTION_VERSION; git tag -a -m \"Release $ACTION_VERSION\" v$ACTION_VERSION && git push --follow-tags )"
