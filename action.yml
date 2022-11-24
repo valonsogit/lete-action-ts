@@ -20,7 +20,7 @@ inputs:
         required: true
         description:
             "Name of the output enviroment variable to set with the selected secret value"
-        default: "GITHUB_TOKEN"
+        default: "SECRET_TOKEN"
 runs:
     using: "node16"
     main: "dist/index.js"
