@@ -52,20 +52,25 @@ function run() {
             core.debug(`Parsed secrets: ${JSON.stringify(secretsObject)}`);
             const secretKey = core
                 .getInput("secretKey", { required: true })
-                .toUpperCase();
+                .toUpperCase()
+                .replace(/[^a-zA-Z0-9]/g, "");
             core.debug(`Secret key found: ${secretKey}`);
             const fallbackKey = core
                 .getInput("fallbackKey", { required: false })
-                .toUpperCase();
+                .toUpperCase()
+                .replace(/[^a-zA-Z0-9]/g, "");
             if (fallbackKey) {
                 core.debug(`fallbackKey found: ${fallbackKey}`);
             }
             else {
                 core.debug(`No fallbackKey specified`);
             }
-            const outputName = core.getInput("outputName", {
+            const outputName = core
+                .getInput("outputName", {
                 required: true,
-            });
+            })
+                .toUpperCase()
+                .replace(/[^a-zA-Z0-9]/g, "");
             core.debug(`outputName found: ${outputName}`);
             let expectedSecretValue = secretsObject[secretKey];
             if (!expectedSecretValue) {

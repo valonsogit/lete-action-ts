@@ -1,105 +1,50 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# Astro Deploy Action
 
-# Create a JavaScript Action using TypeScript
+This action for selects a token from all the tokens in your repository given an input key.
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+## Usage
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+### Inputs
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+- `secrets` - REQUIRED: all the secrets in the repository. This input *MUST* be `${{ toJSON(secrets) }}` otherwise the action will fail.
+> **Note**: The following inputs will be uppercased and cleaned of all non-alpha-numeric characters. This is to ensure that they are valid environment variable names.
+- `secretKey` - REQUIRED: the key of the secret we want to obtain. Useful in combination with expressions like
+`${{ github.actor }}` to get a secret based on the current flow.
+- `fallbackKey` - OPTIONAL: the key of the secret we want to obtain if the `secretKey` is not found. Useful when an actor secret is not found and we want to fallback to a default secret such as an organization secret.
+- `outputName` - REQUIRED: the key for the output variable. Defaults to `SELECTED_SECRET` and will be defined in both the enviroment and as a step output.<br/>
+  It can be used in subsequent steps with the following syntax:
+    - As an enviroment variable - `${{ env.<outputName> }}`
+    - As a step output - `${{ steps.<step-id>.outputs.<outputName> }}`.
 
-## Create an action from this template
+### Example workflow:
 
-Click the `Use this Template` and provide the new repo details for your action
+#### Selecting a secret based on the current issue author
 
-## Code in Main
 
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
+Create a file at `.github/workflows/` with the following content.
 
-Install the dependencies  
-```bash
-$ npm install
+```yml
+name: Select a secret token based on the current issue author
+on:
+  issues:
+    types: [opened]
+jobs:
+  test_job:
+    runs-on: ubuntu-latest
+    name: Test job of secret selection action
+    steps:
+      - name: Dump GitHub context # This is just to find where the actor is defined in the context
+        run: echo "${{ toJSON(github) }}"
+      - name: selection
+        uses: valonsogit/secrets-token-selector@v1.0
+        with:
+          secrets: "${{ toJSON(secrets) }}"
+          secretKey: TOKEN_${{ github.actor }} # The key will have a TOKEN_ prefix
+          outputName: CUSTOM_OUTPUT_NAME
+      - name: "Print ouput of previous step with env"
+        run: echo "$CUSTOM_OUTPUT_NAME"
+      - name: "Print output of previous step with its output"
+        run: echo "${{ steps.selection.outputs.CUSTOM_OUTPUT_NAME }}"
+      - name: "Print full env"
+        run: printenv
 ```
-
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
-
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
-```yaml
-uses: ./
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action

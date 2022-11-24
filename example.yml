@@ -1,3 +1,4 @@
+name: Select a secret token from all the secrets in the repository
 on:
   issues:
     types: [opened]
